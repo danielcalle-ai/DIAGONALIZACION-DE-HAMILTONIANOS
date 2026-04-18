@@ -1,0 +1,112 @@
+#include<iostream>
+#include<cmath>
+#include<vector>
+#include<memory>
+#include<gsl/gsl_integration.h>
+#include<stdexcept>
+
+using namespace std;
+
+class malla{
+public:
+  virtual~malla()=default;
+  virtual void construir(int N)= 0;
+  virtual const std::vector<double>& getNodos() const=0;
+  virtual const std::vector<double>& getPesos() const=0;
+};
+//MALLA LEGENDRE
+class mallaLegendre: public malla{
+  private:
+    std::vector<double> nodos;
+    std::vector<double> pesos;
+  public:
+    void construir(int N) override{
+      nodos.resize(N);
+      pesos.resize(N);
+
+      gsl_integration_glfixed_table*t=
+	gsl_integration_glfixed_table_alloc(N);
+
+      for(int i = 0; i<N; i++){
+	double xi,wi;
+	gsl_integration_glfixed_point(-1.0,1.0,i,&xi, &wi,t);
+
+	nodos[i] =xi;
+	pesos[i]=wi;
+      }
+
+      gsl_integration_glfixed_table_free(t);
+		   
+    }
+    const std::vector<double>& getNodos() const override {return nodos;}
+    const std::vector<double>& getPesos() const override {return pesos;}
+    
+  };
+
+//Laguerre
+class mallaLaguerre: public malla{
+private:
+  std::vector<double> nodos;
+  std::vector<double> pesos;
+
+public:
+  void construir(int N) override{
+    nodos.resize(N);
+    pesos.resize(N);
+
+    const gsl_integration_fixed_type * T =
+      gsl_integration_fixed_laguerre;
+
+    gsl_integration_fixed_worckspace * W=
+      gsl_integration_fixed_alloc(W,T, N, 0.0,1.0);
+
+    for (int i=0; i<N;i++){
+      double xi,wi;
+      gsl_integration_fixed_point(w, i, &xi, &wi);
+      nodos[i] = xi;
+      pesos[i] = wi;
+    }
+    gsl_integration_fixed_free(W);
+  }
+  const std::vector<double>& getNodos() const override{return nodos;}
+  const std::vector<double>& getPesos() const override{return pesos;}
+};
+
+class mallaHermite : public malla{
+private:
+  std::vector<double> nodos;
+  std::vector<double> pesos;
+
+public:
+  void construir(int N) override{
+
+    nodos.resize(N);
+    pesos.resize(N);
+
+    const gsl_integration_fixed_type*T = gsl_integration_fixed_hermite;
+
+    gsl_integration_fixed_workspace* w = gsl_integration_fixed_alloc(T, N, 0.0,1.0);
+
+    for(int i=0; i<N; i++){
+      double xi, wi;
+      gsl_integration_fixed_point(w,i,&xi, &wi);
+      nodos[i] = xi;
+      pesos[i] = wi;
+    }
+    gsl_integration_fixed_free(w);
+  }
+  const std::vector<double>& getNodos()const override{return nodos;}
+  const std::vector<double>& getPesos()const override{return pesos;}
+};
+//seleccion por factory
+std::unique_ptr<malla> crearmalla(const std::string& tipo_malla){
+  if (tipo_malla == "Legendre")
+    return std::make_unique<mallaLegendre>();
+  else if (tipo_malla =="Laguerre")
+    return std::make_unique<mallaLaguerre>();
+  else if (tipo_malla=="Hermite")
+    return std::make_unique<mallaHermite>();
+  else
+    throw std::invalid_argument("No esta esa malla");
+}
+
