@@ -6,7 +6,7 @@
 #include <vector>
 #include <cmath>
 #include <stdexcept>
-
+// te llegan commits?
 using namespace std;
 
 // Implementación de mallaLegendre
