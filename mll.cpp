@@ -1,8 +1,9 @@
-#include "nodos_pesos.h"
+#include "nodos_pesos.h" 
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
+#include <vector>
 #include <cmath>
 #include <stdexcept>
 
