@@ -2,7 +2,7 @@
 #include <gsl/gsl_integration.h>
 #include <cmath>
 #include <stdexcept>
-
+// te llegan commits?
 using namespace std;
 
 void mallaLegendre::construir(int N) {
